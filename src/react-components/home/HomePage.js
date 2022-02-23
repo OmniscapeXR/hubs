@@ -20,7 +20,7 @@ import { Container } from "../layout/Container";
 import { SocialBar } from "../home/SocialBar";
 import { SignInButton } from "./SignInButton";
 import maskEmail from "../../utils/mask-email";
-import { ReactComponent as HmcLogo } from "../icons/HmcLogo.svg";
+import { ReactComponent as HmcLogo } from "../icons/Omniscape_logo.svg";
 
 export function HomePage() {
   const auth = useContext(AuthContext);
