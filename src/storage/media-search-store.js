@@ -2,6 +2,9 @@ import { EventTarget } from "event-target-shim";
 import configs from "../utils/configs";
 import { getReticulumFetchUrl, fetchReticulumAuthenticated, hasReticulumServer } from "../utils/phoenix-utils";
 import { pushHistoryPath, sluglessPath, withSlug } from "../utils/history";
+import { graphqlFetcher } from "../utils/fetcher";
+import { gql } from "graphql-request";
+import realmApp from "../lib/realms";
 
 const EMPTY_RESULT = { entries: [], meta: {} };
 
@@ -16,7 +19,8 @@ const URL_SOURCE_TO_TO_API_SOURCE = {
   favorites: "favorites"
 };
 
-const desiredSources = ["sketchfab", "videos", "scenes", "avatars", "gifs", "images"];
+// const desiredSources = ["sketchfab", "videos", "scenes", "avatars", "gifs", "images"];
+const desiredSources = ["scenes", "inventory", "avatars"];
 const availableSources = desiredSources.filter(source => {
   const apiSource = URL_SOURCE_TO_TO_API_SOURCE[source];
   return configs.integration(apiSource);
@@ -51,6 +55,9 @@ export default class MediaSearchStore extends EventTarget {
     });
   }
 
+  /**
+   * Fetches and stores media search results for the current location.
+   */
   _update = async location => {
     this.result = null;
     this.dispatchEvent(new CustomEvent("statechanged"));
@@ -107,6 +114,30 @@ export default class MediaSearchStore extends EventTarget {
     this.isFetching = true;
     this.dispatchEvent(new CustomEvent("statechanged"));
     const result = fetch ? await fetchReticulumAuthenticated(path) : EMPTY_RESULT;
+
+    //------ GraphQL MongoDB Realm API ------//
+    const collection = ["inventory", "avatars"].includes(urlSource) ? urlSource : null;
+    if (!collection) fetch = false;
+
+    const query = gql`
+      {
+        omniscape_users_test(query: { email: "${window.APP.store.state.credentials.email}" }) {
+          ${collection} {
+            title
+            url
+          }
+        }
+      }
+    `;
+    const graphqlResult = fetch
+      ? await graphqlFetcher({
+          query,
+          token: realmApp.currentUser.accessToken
+        })
+      : EMPTY_RESULT;
+
+    console.log("🚀 ~ file: media-search-store.js ~ line 136 ~ MediaSearchStore ~ graphqlResult", graphqlResult);
+    //---------------------------------------//
 
     if (this.requestIndex != currentRequestIndex) return;
 
