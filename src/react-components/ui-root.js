@@ -94,6 +94,7 @@ import { TweetModalContainer } from "./room/TweetModalContainer";
 import { TipContainer, FullscreenTip } from "./room/TipContainer";
 import { SpectatingLabel } from "./room/SpectatingLabel";
 import { SignInMessages } from "./auth/SignInModal";
+import { getOmniscapeUsername } from "../utils/omniscape-utils";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -197,7 +198,9 @@ class UIRoot extends Component {
     objectInfo: null,
     objectSrc: "",
     sidebarId: null,
-    presenceCount: 0
+    presenceCount: 0,
+
+    displayNameOverride: null
   };
 
   constructor(props) {
@@ -296,7 +299,7 @@ class UIRoot extends Component {
     }
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     window.addEventListener("concurrentload", this.onConcurrentLoad);
     window.addEventListener("idle_detected", this.onIdleDetected);
     window.addEventListener("activity_detected", this.onActivityDetected);
@@ -348,6 +351,10 @@ class UIRoot extends Component {
       popToBeginningOfHubHistory(this.props.history);
     }
 
+    const displayNameOverride = window.APP.store.state.credentials.email
+      ? await getOmniscapeUsername(window.APP.store.state.credentials.email)
+      : null;
+
     this.setState({
       audioContext: {
         playSound: sound => {
@@ -356,7 +363,8 @@ class UIRoot extends Component {
         onMouseLeave: () => {
           //          scene.emit("play_sound-hud_mouse_leave");
         }
-      }
+      },
+      displayNameOverride
     });
 
     if (this.props.forcedVREntryType && this.props.forcedVREntryType.endsWith("_now")) {
@@ -1020,9 +1028,9 @@ class UIRoot extends Component {
     const enteredOrWatching = entered || watching;
     const showRtcDebugPanel = this.props.store.state.preferences["showRtcDebugPanel"];
     const showAudioDebugPanel = this.props.store.state.preferences["showAudioDebugPanel"];
-    const displayNameOverride = this.props.hubIsBound
-      ? getPresenceProfileForSession(this.props.presences, this.props.sessionId).displayName
-      : null;
+    // const displayNameOverride = this.props.hubIsBound
+    //   ? getPresenceProfileForSession(this.props.presences, this.props.sessionId).displayName
+    //   : null;
 
     const enableSpectateVRButton =
       configs.feature("enable_lobby_ghosts") &&
@@ -1058,7 +1066,7 @@ class UIRoot extends Component {
               <ProfileEntryPanel
                 {...props}
                 containerType="modal"
-                displayNameOverride={displayNameOverride}
+                displayNameOverride={this.state.displayNameOverride}
                 finished={() => {
                   if (this.props.forcedVREntryType) {
                     this.pushHistoryState();
@@ -1452,7 +1460,7 @@ class UIRoot extends Component {
                       )}
                       {this.state.sidebarId === "people" && (
                         <PeopleSidebarContainer
-                          displayNameOverride={displayNameOverride}
+                          displayNameOverride={this.state.displayNameOverride}
                           store={this.props.store}
                           mediaSearchStore={this.props.mediaSearchStore}
                           hubChannel={this.props.hubChannel}
@@ -1469,7 +1477,7 @@ class UIRoot extends Component {
                         <ProfileEntryPanel
                           history={this.props.history}
                           containerType="sidebar"
-                          displayNameOverride={displayNameOverride}
+                          displayNameOverride={this.state.displayNameOverride}
                           finished={() => this.setSidebar(null)}
                           onClose={() => this.setSidebar(null)}
                           store={this.props.store}
