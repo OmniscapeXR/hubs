@@ -5,6 +5,7 @@ import { pushHistoryPath, sluglessPath, withSlug } from "../utils/history";
 import { graphqlFetcher } from "../utils/fetcher";
 import { gql } from "graphql-request";
 import realmApp from "../lib/realms";
+import { createEntry } from "../utils/omniscape-utils";
 
 const EMPTY_RESULT = { entries: [], meta: {} };
 
@@ -113,19 +114,21 @@ export default class MediaSearchStore extends EventTarget {
 
     this.isFetching = true;
     this.dispatchEvent(new CustomEvent("statechanged"));
-    const result = fetch ? await fetchReticulumAuthenticated(path) : EMPTY_RESULT;
+    // const result = fetch ? await fetchReticulumAuthenticated(path) : EMPTY_RESULT;
 
-    //------ GraphQL MongoDB Realm API ------//
-    const collection = ["inventory", "avatars"].includes(urlSource) ? urlSource : null;
+    //------ GraphQL MongoDB Realm API ------// TODO: Cache this
+    const collection = ["inventory", "avatars"].includes(urlSource) ? urlSource : null; // TODO: Add scene collection
     if (!collection) fetch = false;
 
     const query = gql`
       {
         omniscape_users_test(query: { email: "${window.APP.store.state.credentials.email}" }) {
           ${collection} {
-            title
+            id,
+            title,
             url
-          }
+          },
+          username
         }
       }
     `;
@@ -136,12 +139,43 @@ export default class MediaSearchStore extends EventTarget {
         })
       : EMPTY_RESULT;
 
-    console.log("🚀 ~ file: media-search-store.js ~ line 136 ~ MediaSearchStore ~ graphqlResult", graphqlResult);
-    //---------------------------------------//
+    if (graphqlResult.entries) {
+      this.result = graphqlResult;
+    } else {
+      console.log("🚀 ~ file: media-search-store.js ~ line 136 ~ MediaSearchStore ~ graphqlResult", graphqlResult);
 
-    if (this.requestIndex != currentRequestIndex) return;
+      let type;
+      switch (urlSource) {
+        case "avatars":
+          type = "avatar";
+          break;
+        case "scenes":
+          type = "scene";
+          break;
+        case "inventory":
+          type = "inventory";
+      }
+      type += "_listing";
+      const creator = graphqlResult.omniscape_users_test.username;
+      const entries = graphqlResult.omniscape_users_test[collection].map(item =>
+        createEntry({
+          ...item,
+          type,
+          creator,
+          previewURL: "https://static.turbosquid.com/Preview/001211/713/MI/vr-ar-3D_D.jpg" // Meanwhile changing this to a placeholder image
+        })
+      );
+      console.log("🚀 ~ file: media-search-store.js ~ line 146 ~ MediaSearchStore ~ entries", entries);
+      //---------------------------------------//
 
-    this.result = result;
+      if (this.requestIndex != currentRequestIndex) return;
+
+      const result = {
+        entries
+      };
+      console.log("🚀 ~ file: media-search-store.js ~ line 118 ~ MediaSearchStore ~ result", result);
+      this.result = result;
+    }
     this.nextCursor = this.result && this.result.meta && this.result.meta.next_cursor;
     this.lastFetchedUrl = url;
     this.isFetching = false;
