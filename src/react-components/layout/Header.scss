@@ -25,10 +25,8 @@ header {
 
     li {
       &:first-child {
-        padding-top: 20px;
         @media(min-width: theme.$breakpoint-lg) {
           img {
-            width: 100%;
             height: 100%;
           }
         }

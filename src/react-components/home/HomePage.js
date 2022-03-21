@@ -75,11 +75,7 @@ export function HomePage() {
             <SignInButton mobile />
           )}
           <div className={styles.logoContainer}>
-            {isHmc ? (
-              <HmcLogo className="hmc-logo" />
-            ) : (
-              <img alt={configs.translation("app-name")} src={getAppLogo()} />
-            )}
+            {isHmc ? <HmcLogo /> : <img alt={configs.translation("app-name")} src={getAppLogo()} />}
           </div>
           <div className={styles.appInfo}>
             <div className={styles.appDescription}>{configs.translation("app-description")}</div>
