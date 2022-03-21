@@ -30,34 +30,37 @@ const PRIVACY_POLICY_LINKS = {
 };
 
 const DEFAULT_FACETS = {
-  sketchfab: [
-    { text: "Featured", params: { filter: "featured" } },
-    { text: "Animals", params: { filter: "animals-pets" } },
-    { text: "Architecture", params: { filter: "architecture" } },
-    { text: "Art", params: { filter: "art-abstract" } },
-    { text: "Vehicles", params: { filter: "cars-vehicles" } },
-    { text: "Characters", params: { filter: "characters-creatures" } },
-    { text: "Culture", params: { filter: "cultural-heritage-history" } },
-    { text: "Gadgets", params: { filter: "electronics-gadgets" } },
-    { text: "Fashion", params: { filter: "fashion-style" } },
-    { text: "Food", params: { filter: "food-drink" } },
-    { text: "Furniture", params: { filter: "furniture-home" } },
-    { text: "Music", params: { filter: "music" } },
-    { text: "Nature", params: { filter: "nature-plants" } },
-    { text: "News", params: { filter: "news-politics" } },
-    { text: "People", params: { filter: "people" } },
-    { text: "Places", params: { filter: "places-travel" } },
-    { text: "Science", params: { filter: "science-technology" } },
-    { text: "Sports", params: { filter: "sports-fitness" } },
-    { text: "Weapons", params: { filter: "weapons-military" } }
-  ],
-  avatars: [
-    { text: "Featured", params: { filter: "featured" } },
-    { text: "My Avatars", params: { filter: "my-avatars" } },
-    { text: "Newest", params: { filter: "" } }
-  ],
-  favorites: [],
-  scenes: [{ text: "Featured", params: { filter: "featured" } }, { text: "My Scenes", params: { filter: "my-scenes" } }]
+  //   sketchfab: [
+  //     { text: "Featured", params: { filter: "featured" } },
+  //     { text: "Animals", params: { filter: "animals-pets" } },
+  //     { text: "Architecture", params: { filter: "architecture" } },
+  //     { text: "Art", params: { filter: "art-abstract" } },
+  //     { text: "Vehicles", params: { filter: "cars-vehicles" } },
+  //     { text: "Characters", params: { filter: "characters-creatures" } },
+  //     { text: "Culture", params: { filter: "cultural-heritage-history" } },
+  //     { text: "Gadgets", params: { filter: "electronics-gadgets" } },
+  //     { text: "Fashion", params: { filter: "fashion-style" } },
+  //     { text: "Food", params: { filter: "food-drink" } },
+  //     { text: "Furniture", params: { filter: "furniture-home" } },
+  //     { text: "Music", params: { filter: "music" } },
+  //     { text: "Nature", params: { filter: "nature-plants" } },
+  //     { text: "News", params: { filter: "news-politics" } },
+  //     { text: "People", params: { filter: "people" } },
+  //     { text: "Places", params: { filter: "places-travel" } },
+  //     { text: "Science", params: { filter: "science-technology" } },
+  //     { text: "Sports", params: { filter: "sports-fitness" } },
+  //     { text: "Weapons", params: { filter: "weapons-military" } }
+  //   ],
+  //   inventory: [{ text: "My NFT's", params: { filter: "my-nfts" } }],
+  //   avatars: [
+  //     { text: "My Avatars", params: { filter: "my-avatars" } }
+  // { text: "Featured", params: { filter: "featured" } },
+  // { text: "My Avatars", params: { filter: "my-avatars" } }
+  // { text: "Newest", params: { filter: "" } }
+  //   ],
+  //   scenes: [{ text: "My Scenes", params: { filter: "my-scenes" } }]
+  //   scenes: [{ text: "Featured", params: { filter: "featured" } }, { text: "My Scenes", params: { filter: "my-scenes" } }]
+  //   favorites: [],
 };
 
 const poweredByMessages = defineMessages({
@@ -356,7 +359,7 @@ class MediaBrowserContainer extends Component {
       !isFavorites && (!isSceneApiType || this.props.hubChannel.canOrWillIfCreator("update_hub"));
     const entries = (this.state.result && this.state.result.entries) || [];
     const hideSearch = urlSource === "favorites";
-    const showEmptyStringOnNoResult = urlSource !== "avatars" && urlSource !== "scenes";
+    const showEmptyStringOnNoResult = urlSource !== "avatars" && urlSource !== "scenes" && urlSource !== "inventory";
 
     const facets = this.state.facets && this.state.facets.length > 0 ? this.state.facets : undefined;
 
@@ -455,7 +458,7 @@ class MediaBrowserContainer extends Component {
         onSelectSource={this.handleSourceClicked}
         activeFilter={activeFilter}
         facets={facets}
-        onSelectFacet={this.handleFacetClicked}
+        onSelectFacet={this.handleFacetClicked} // Facet's 3d models list
         searchPlaceholder={
           searchPlaceholderMessages[urlSource]
             ? intl.formatMessage(searchPlaceholderMessages[urlSource])

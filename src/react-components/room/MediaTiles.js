@@ -139,7 +139,12 @@ export function MediaTile({ entry, processThumbnailUrl, onClick, onEdit, onShowS
 
   return (
     <BaseTile
-      wide={entry.type === "scene" || entry.type === "scene_listing" || entry.type === "room"}
+      wide={
+        entry.type === "scene" ||
+        entry.type === "scene_listing" ||
+        entry.type === "room" ||
+        entry.type === "inventory_listing"
+      }
       tall={entry.type === "avatar" || entry.type === "avatar_listing"}
       name={entry.name}
       description={

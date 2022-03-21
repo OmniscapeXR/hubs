@@ -346,7 +346,7 @@ function mountUI(props = {}) {
                     disableAutoExitOnIdle,
                     forcedVREntryType,
                     store,
-                    mediaSearchStore,
+                    mediaSearchStore, // Model search store
                     ...props,
                     ...routeProps
                   }}
